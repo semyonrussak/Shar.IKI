@@ -8,6 +8,7 @@ export class EquirectangularProjection extends MapProjection {
         let normalizedLon = lon; // Создаём переменную для нормализованной долготы (в диапазоне [-180, 180])
         while (normalizedLon > 180) normalizedLon -= 360;
         while (normalizedLon < -180) normalizedLon += 360;
+        if (normalizedLon === 180) normalizedLon = -180; // Долготы -180 и 180 дадут normalizedLon = -180, и x = (-180 + 180)/360 = 0
 
         const x = (normalizedLon + 180) / 360; // Получаем значения в диапазоне [0, 1]
         const y = (90 - lat) / 180;            // Вычитаем широту из 90, потому что на экране ось Y направлена вниз, а в географии север – вверх

@@ -1,10 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src",
-    "\\src\\2d",
-    "\\src\\2d\\engine"
+    "\\src\\2d\\engine",
+    "\\src\\2d\\projections"
   ],
-  "SelectedNode": "\\src\\2d\\engine\\Controller2D.ts",
+  "SelectedNode": "\\.gitignore",
   "PreviewInSolutionExplorer": false
 }
