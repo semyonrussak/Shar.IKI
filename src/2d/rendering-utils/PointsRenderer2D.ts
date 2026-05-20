@@ -7,6 +7,7 @@ export class PointsRenderer2D {
     private projectionManager: ProjectionManager;
     private mesh: THREE.Points | null = null;
     private source: any;
+    private pointsData: Array<{ lat: number; lon: number; color: string }> = [];
 
     constructor(engine: RenderEngine2D, projectionManager: ProjectionManager) {
         this.engine = engine;
@@ -15,7 +16,11 @@ export class PointsRenderer2D {
 
     // Принимает массив точек в формате { lat, lon, color:string } и отображает их.
     setData(points: Array<{ lat: number; lon: number; color: string }>): void {
-        // Удаляем старый меш, если был
+        this.pointsData = points;
+        this.rebuildGeometry();
+    }
+
+    private rebuildGeometry(): void {
         if (this.mesh) {
             this.engine.getScene().remove(this.mesh);
             this.mesh.geometry.dispose();
@@ -26,7 +31,7 @@ export class PointsRenderer2D {
         const positions: number[] = [];
         const colors: number[] = [];
 
-        points.forEach(point => {
+        this.pointsData.forEach(point => {
             const screenPos = this.projectionManager.projectPoint(point.lat, point.lon);
             positions.push(screenPos.x, screenPos.y, 0);
             const color = new THREE.Color(point.color);
@@ -37,18 +42,14 @@ export class PointsRenderer2D {
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
 
-        const material = new THREE.PointsMaterial({
-            size: 10,
-            vertexColors: true
-        });
-
+        const material = new THREE.PointsMaterial({ size: 10, vertexColors: true });
         this.mesh = new THREE.Points(geometry, material);
         this.engine.getScene().add(this.mesh);
     }
 
     // Обновляет позиции точек при смене проекции или ресайзе.
     update(): void {
-    // Пока заглушка – позже будет пересоздавать геометрию как setData
+        this.rebuildGeometry();
     }
 
     dispose(): void {

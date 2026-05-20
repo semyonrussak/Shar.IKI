@@ -12,6 +12,19 @@
             height: 100%;
             overflow: hidden;
         }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
 
         #app-2d {
             width: 100%;
@@ -20,6 +33,10 @@
     </style>
 </head>
 <body>
+    <div id="controls">
+        <button id="btn-equi">Equirectangular</button>
+        <button id="btn-merc">Web Mercator</button>
+    </div>
     <div id="app-2d"></div>
     <script type="module" src="/src/2d/main.ts"></script>
 </body>
