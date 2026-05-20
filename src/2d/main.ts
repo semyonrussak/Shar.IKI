@@ -1,46 +1,55 @@
 ﻿import { RenderEngine2D } from './engine/RenderEngine2D';
-import { WebMercatorProjection } from './projections/WebMercatorProjection';
+import { EquirectangularProjection } from './projections/EquirectangularProjection';
 import { ProjectionManager } from './projections/ProjectionManager';
-import * as THREE from 'three';
+import { PointsRenderer2D } from './rendering-utils/PointsRenderer2D';
+import { SegmentsRenderer2D, SegmentData2D } from './rendering-utils/SegmentsRenderer2D';
+
 
 const engine = new RenderEngine2D('app-2d');
 
-// Создаём проекцию и менеджер (размеры пока возьмём из камеры)
-const camera = engine.getCamera();
-const width = camera.right - camera.left;
-const height = camera.top - camera.bottom;
-const projection = new WebMercatorProjection();
-const projectionManager = new ProjectionManager(projection, width, height);
+// Создаём проекцию и менеджер
+const projection = new EquirectangularProjection();
+const projectionManager = new ProjectionManager(
+    projection,
+    engine.getCanvas().clientWidth,
+    engine.getCanvas().clientHeight
+);
 
-// Тестовые точки (широта, долгота, цвет)
+// Создаём рендерер точек
+const pointsRenderer = new PointsRenderer2D(engine, projectionManager);
+
+// Тестовые города
 const cities = [
     { name: 'Moscow', lat: 55.7558, lon: 37.6173, color: '#ff3333' },
     { name: 'London', lat: 51.5074, lon: -0.1278, color: '#33ff33' },
     { name: 'Sydney', lat: -33.8688, lon: 151.2093, color: '#3333ff' }
 ];
 
-const positions: number[] = [];
-const colors: number[] = [];
+// Передаём данные в рендерер
+pointsRenderer.setData(cities);
 
-cities.forEach(city => {
-    const screenPos = projectionManager.projectPoint(city.lat, city.lon);
-    positions.push(screenPos.x, screenPos.y, 0);
+// Создаём рендерер отрезков
+const segmentsRenderer = new SegmentsRenderer2D(engine, projectionManager);
 
-    const color = new THREE.Color(city.color);
-    colors.push(color.r, color.g, color.b);
-});
+// Тестовые отрезки
+const testSegments: SegmentData2D[] = [
+    {
+        lat1: 55.7558, lon1: 37.6173,   // Moscow
+        lat2: 51.5074, lon2: -0.1278,   // London
+        color1: '#ff3333', color2: '#33ff33',
+        width: 5, gradientColor: true
+    },
+    {
+        lat1: -33.8688, lon1: 151.2093, // Sydney
+        lat2: 34.0522, lon2: -118.2437, // Los Angeles
+        color1: '#3333ff', color2: '#ffff33',
+        width: 3, gradientColor: false
+    }
+];
 
-// Создаём геометрию точек
-const geometry = new THREE.BufferGeometry();
-geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
-geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
+segmentsRenderer.setData(testSegments);
 
-const material = new THREE.PointsMaterial({ size: 10, vertexColors: true });
-const points = new THREE.Points(geometry, material);
-engine.getScene().add(points);
-
-
-// Запуск цикла анимации
+// Цикл анимации
 (function animate() {
     requestAnimationFrame(animate);
     engine.render();

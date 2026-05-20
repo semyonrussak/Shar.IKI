@@ -1,9 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src\\2d\\engine",
-    "\\src\\2d\\projections"
+    "\\src",
+    "\\src\\2d",
+    "\\src\\2d\\rendering-utils",
+    "\\tests"
   ],
-  "SelectedNode": "\\.gitignore",
+  "SelectedNode": "\\src\\2d\\rendering-utils\\PointsRenderer2D.ts",
   "PreviewInSolutionExplorer": false
 }
