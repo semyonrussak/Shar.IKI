@@ -2,9 +2,11 @@
 import { EquirectangularProjection } from './projections/EquirectangularProjection';
 import { WebMercatorProjection } from './projections/WebMercatorProjection';
 import { GeomagneticPolarProjection } from './projections/GeomagneticPolarProjection';
+import { GeographicPolarProjection } from './projections/GeographicPolarProjection';
 import { ProjectionManager } from './projections/ProjectionManager';
 import { PointsRenderer2D } from './rendering-utils/PointsRenderer2D';
 import { SegmentsRenderer2D, SegmentData2D } from './rendering-utils/SegmentsRenderer2D';
+
 
 
 const engine = new RenderEngine2D('app-2d');
@@ -68,10 +70,17 @@ function switchToGeomagneticPolar() {
     segmentsRenderer.update();
 }
 
+function switchToGeographicPolarNorth() {
+    projectionManager.setProjection(new GeographicPolarProjection('north'));
+    pointsRenderer.update();
+    segmentsRenderer.update();
+}
+
 // Attach event listeners
 document.getElementById('btn-equi')?.addEventListener('click', switchToEquirectangular);
 document.getElementById('btn-merc')?.addEventListener('click', switchToMercator);
 document.getElementById('btn-geopolar')?.addEventListener('click', switchToGeomagneticPolar);
+document.getElementById('btn-geopolarn')?.addEventListener('click', switchToGeographicPolarNorth);
 
 // Цикл анимации
 (function animate() {
