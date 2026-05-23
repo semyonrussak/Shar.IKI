@@ -1,6 +1,7 @@
 ﻿import { RenderEngine2D } from './engine/RenderEngine2D';
 import { EquirectangularProjection } from './projections/EquirectangularProjection';
 import { WebMercatorProjection } from './projections/WebMercatorProjection';
+import { GeomagneticPolarProjection } from './projections/GeomagneticPolarProjection';
 import { ProjectionManager } from './projections/ProjectionManager';
 import { PointsRenderer2D } from './rendering-utils/PointsRenderer2D';
 import { SegmentsRenderer2D, SegmentData2D } from './rendering-utils/SegmentsRenderer2D';
@@ -10,11 +11,9 @@ const engine = new RenderEngine2D('app-2d');
 
 // Создаём проекцию и менеджер
 const projection = new EquirectangularProjection();
-const projectionManager = new ProjectionManager(
-    projection,
-    engine.getCanvas().clientWidth,
-    engine.getCanvas().clientHeight
-);
+const projectionManager = new ProjectionManager( projection,
+                                                 engine.getCanvas().clientWidth,
+                                                 engine.getCanvas().clientHeight );
 
 // Создаём рендерер точек
 const pointsRenderer = new PointsRenderer2D(engine, projectionManager);
@@ -63,9 +62,16 @@ function switchToMercator() {
     segmentsRenderer.update();
 }
 
+function switchToGeomagneticPolar() {
+    projectionManager.setProjection(new GeomagneticPolarProjection());
+    pointsRenderer.update();
+    segmentsRenderer.update();
+}
+
 // Attach event listeners
 document.getElementById('btn-equi')?.addEventListener('click', switchToEquirectangular);
 document.getElementById('btn-merc')?.addEventListener('click', switchToMercator);
+document.getElementById('btn-geopolar')?.addEventListener('click', switchToGeomagneticPolar);
 
 // Цикл анимации
 (function animate() {
