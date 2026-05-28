@@ -39,34 +39,54 @@ export class SegmentsRenderer2D {
 
         if (this.segmentsData.length === 0) return;
 
-        // --- ДАЛЬШЕ ТОТ ЖЕ САМЫЙ КОД, ЧТО БЫЛ У ТЕБЯ В setData, НО ИСПОЛЬЗУЕТ this.segmentsData ---
-        const segments = this.segmentsData;   // для краткости
+        // Temporary arrays
+        const positions: number[] = [];
+        const colors: number[] = [];
+        const indices: number[] = [];
 
-        const verticesPerSegment = 6;
-        const totalVertices = segments.length * verticesPerSegment;
+        const addSegmentVertices = (seg: SegmentData2D, lonShift: number = 0) => {
+            const screen1 = this.projectionManager.projectPoint(seg.lat1, seg.lon1 + lonShift);
+            const screen2 = this.projectionManager.projectPoint(seg.lat2, seg.lon2 + lonShift);
+            const p1 = new THREE.Vector2(screen1.x, screen1.y);
+            const p2 = new THREE.Vector2(screen2.x, screen2.y);
+            const dir = new THREE.Vector2().subVectors(p2, p1).normalize();
+            const perpendicular = new THREE.Vector2(-dir.y, dir.x).multiplyScalar(seg.width / 2);
+            const c1 = new THREE.Vector2().addVectors(p1, perpendicular);
+            const c2 = new THREE.Vector2().addVectors(p1, perpendicular.clone().negate());
+            const c3 = new THREE.Vector2().addVectors(p2, perpendicular);
+            const c4 = new THREE.Vector2().addVectors(p2, perpendicular.clone().negate());
+            const rgba1 = this.hexToRgba(seg.color1);
+            const rgba2 = seg.gradientColor ? this.hexToRgba(seg.color2) : rgba1;
 
-        const positions = new Float32Array(totalVertices * 3);
-        const colors = new Float32Array(totalVertices * 4);
-        const indices = new Uint32Array(totalVertices);
+            const baseIndex = positions.length / 3; // current vertex count
+            // triangle 1: c1, c2, c3
+            positions.push(c1.x, c1.y, 0); colors.push(rgba1.r, rgba1.g, rgba1.b, rgba1.a);
+            positions.push(c2.x, c2.y, 0); colors.push(rgba1.r, rgba1.g, rgba1.b, rgba1.a);
+            positions.push(c3.x, c3.y, 0); colors.push(rgba2.r, rgba2.g, rgba2.b, rgba2.a);
+            // triangle 2: c2, c4, c3
+            positions.push(c2.x, c2.y, 0); colors.push(rgba1.r, rgba1.g, rgba1.b, rgba1.a);
+            positions.push(c4.x, c4.y, 0); colors.push(rgba2.r, rgba2.g, rgba2.b, rgba2.a);
+            positions.push(c3.x, c3.y, 0); colors.push(rgba2.r, rgba2.g, rgba2.b, rgba2.a);
 
-        let vertexIndex = 0;
-        let colorIndex = 0;
-        let indexIndex = 0;
+            for (let i = 0; i < 6; i++) indices.push(baseIndex + i);
+        };
 
-        const p1 = new THREE.Vector2();
-        const p2 = new THREE.Vector2();
-        const dir = new THREE.Vector2();
-        const perpendicular = new THREE.Vector2();
-        const offset = new THREE.Vector2();
-
-        segments.forEach(segment => {
-            // ... ровно тот же код, что и раньше ...
+        // Обработка каждого сегмента (это было пропущено!)
+        this.segmentsData.forEach(segment => {
+            addSegmentVertices(segment);
+            // Check if segment crosses 180 meridian
+            const lonDiff = Math.abs(segment.lon1 - segment.lon2);
+            const crosses = (segment.lon1 > 150 && segment.lon2 < -150) || (segment.lon2 > 150 && segment.lon1 < -150) || lonDiff > 180;
+            if (crosses) {
+                const shift = segment.lon1 > 0 ? -360 : 360;
+                addSegmentVertices(segment, shift);
+            }
         });
 
         const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 4));
-        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 4));
+        geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
         geometry.computeVertexNormals();
 
         const material = new THREE.MeshBasicMaterial({

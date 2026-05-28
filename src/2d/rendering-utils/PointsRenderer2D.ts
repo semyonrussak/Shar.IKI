@@ -28,6 +28,13 @@ export class PointsRenderer2D {
             this.mesh = null;
         }
 
+        // Helper: check if a point needs duplication
+        const crosses180 = (lon: number, radius: number) => {
+            // radius is not used for points but kept for uniformity
+            // If lon is exactly 180, it is on the boundary – we'll shift it
+            return lon > 180 || lon < -180 || lon === 180;
+        };
+
         const positions: number[] = [];
         const colors: number[] = [];
 
@@ -36,6 +43,15 @@ export class PointsRenderer2D {
             positions.push(screenPos.x, screenPos.y, 0);
             const color = new THREE.Color(point.color);
             colors.push(color.r, color.g, color.b);
+
+            // Duplicate if crossing 180 meridian
+            if (crosses180(point.lon, 0)) {
+                // Shift longitude by ±360° to make it appear on the other side
+                const shiftedLon = point.lon > 0 ? point.lon - 360 : point.lon + 360;
+                const shiftedScreen = this.projectionManager.projectPoint(point.lat, shiftedLon);
+                positions.push(shiftedScreen.x, shiftedScreen.y, 0);
+                colors.push(color.r, color.g, color.b);
+            }
         });
 
         const geometry = new THREE.BufferGeometry();

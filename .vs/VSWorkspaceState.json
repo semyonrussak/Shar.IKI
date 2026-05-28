@@ -3,9 +3,9 @@
     "",
     "\\src",
     "\\src\\2d",
-    "\\src\\2d\\rendering-utils",
-    "\\tests"
+    "\\src\\2d\\data-interfaces",
+    "\\src\\2d\\projections"
   ],
-  "SelectedNode": "\\tests\\SegmentsRenderer2D.test.ts",
+  "SelectedNode": "\\test-2d.html",
   "PreviewInSolutionExplorer": false
 }

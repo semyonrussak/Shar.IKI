@@ -29,7 +29,7 @@ export class RenderEngine2D {                 // Объявляет новый �
         this.renderer.setPixelRatio(window.devicePixelRatio); // Задаёт плотность пикселей, соответствующую экрану (например, на Retina-дисплеях она равна 2). Без этого изображение может быть размытым.
 
         this.scene = new THREE.Scene();                       // Создаётся пустая сцена.
-        this.scene.background = new THREE.Color(0x111122);    // Устанавливается тёмно-синий фон сцены (почти чёрный, но не совсем). Это цвет, который будет виден там, где нет объектов.
+        this.scene.background = new THREE.Color(0x888888);    // Устанавливается тёмно-синий фон сцены (почти чёрный, но не совсем). Это цвет, который будет виден там, где нет объектов.
 
         const width = container.clientWidth;
         const height = container.clientHeight;                // Получаем текущие размеры контейнера в пикселях.
